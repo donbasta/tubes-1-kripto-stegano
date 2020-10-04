@@ -20,13 +20,14 @@ batas pesan berakhir
 metode : LSB dan BPCS
 
 A. Penyisipan pesan
-(x) Tanpa enkripsi ( ) Dengan enkripsi (ket: check box)
-1. Metode LSB
-    1.1 Pixel-pixel Sekuensial
-    1.2 Pixel-pixel acak
-2. Metode BPCS
-    2.1 Blok-blok Sekuensial
-    2.2 Blok-blok acak
-B. Ekstraksi pesan
+    input :
+    - path gambar yang disisipi
+    - path pesan
+    - enkripsi/tidak
+    -acak/sekuensial
     1. Metode LSB
     2. Metode BPCS
+        tambahain input : treshold
+B. Ekstraksi pesan
+    1. Metode LSB , input (path gambar, key(optional))
+    2. Metode BPCS, input (path gambar, key(optional), treshold(optional))

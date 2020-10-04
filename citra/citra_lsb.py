@@ -3,8 +3,10 @@ from PIL import Image
 import numpy as np
 from vigenere import Vigenere
 import random
+import math
+from helper import decrypt_vigenere, encrypt_vigenere, pnsr
 
-class Citra:
+class CitraLSB:
     def __init__(self, path):
         extension = ['.bmp', '.png']
         if (os.path.splitext(path)[1].lower() not in extension):
@@ -20,7 +22,8 @@ class Citra:
             self.channel = 3
         else:
             raise Exception('File input cannot processed.')
-
+        
+        self.ori_img = np.array(img)
         self.array = np.array(img)
         self.img_extension = os.path.splitext(path)[1].lower()
         self.payload = self.channel * self.array.shape[0] * self.array.shape[1]
@@ -39,9 +42,9 @@ class Citra:
         self.message = msg_bytes
          
 
-    def lsb(self, key='', is_random = False, is_encrypted = False):
+    def encode_lsb(self, key='', is_random = False, is_encrypted = False):
         if (key != ''):
-            self.encrypt_vigenere(key)
+            self.message = encrypt_vigenere(key, self.message)
 
         buff1 = "" # flag random/not and encrypted/not
         buff2 = "" # flag file extension
@@ -66,7 +69,12 @@ class Citra:
         if (is_random):
             input_order = self.generate_random_input_order(key)
         else:
-            input_order = [i for i in range(self.array.shape[0]*self.array.shape[1])]
+            input_order = [i for i in range(1, self.array.shape[0]*self.array.shape[1])]
+
+        if (self.channel == 1):
+            self.array[0][0] = int(format(self.array[0][0], '08b')[:-1] + buff1[0], 2)
+        else:  
+            self.array[0][0][0] = int(format(self.array[0][0][0], '08b')[:-1] + buff1[0], 2)
 
         data_index = 0
         data_len = len(self.message)
@@ -115,9 +123,9 @@ class Citra:
                 for k in range(channel):
                     binary_message += format(image[i][j][k], '08b')[-1]
 
-        buff1 = binary_message[:2]
-        binary_message = binary_message[2:]
-        is_encrypted = buff1[1]
+        buff1 = binary_message[:1]
+        binary_message = binary_message[1:]
+        is_encrypted = buff1[0]
 
         bytes_message = [binary_message[i:i+8] for i in range(0, len(binary_message), 8)]
         file_extension = ''
@@ -140,7 +148,7 @@ class Citra:
             if key == '':
                 raise Exception("Need a key")
             else :
-                decoded_msg = self.decrypt_vigenere(key, decoded_msg)
+                decoded_msg = decrypt_vigenere(key, decoded_msg)
 
         print('='*50)
         print(file_extension)
@@ -149,24 +157,12 @@ class Citra:
         file.write(decoded_msg)
         file.close()
 
-    def encrypt_vigenere(self, key):
-        cipher = Vigenere(key, key_mode=Vigenere.KeyMode.KEY_MODE_BASIC, matrix_mode=Vigenere.MatrixMode.MATRIX_MODE_FULL,
-                      char_size=Vigenere.CharSize.CHAR_SIZE_EXTENDED)
-        pt = cipher.encrypt(self.message.decode('latin1'))
-        self.message = pt.encode('latin1')
-    
-    def decrypt_vigenere(self, key, msg):
-        cipher = Vigenere(key, key_mode=Vigenere.KeyMode.KEY_MODE_BASIC, matrix_mode=Vigenere.MatrixMode.MATRIX_MODE_FULL,
-                      char_size=Vigenere.CharSize.CHAR_SIZE_EXTENDED)
-        pt = cipher.decrypt(msg.decode('latin1'))
-        return pt.encode('latin1')
-
     def save_stego_image(self, file_name):
         im = Image.fromarray(self.array)
         im.save(file_name + self.img_extension)
 
     def generate_random_input_order(self, key):
-        temp = [i for i in range(self.array.shape[0]*self.array.shape[1])]
+        temp = [i for i in range(1, self.array.shape[0]*self.array.shape[1])]
         seed = 0
         for c in key:
             seed += ord(c)
@@ -181,13 +177,14 @@ if __name__ == "__main__":
         if inp == 1:
             input_img = str(input("Masukkan path gambar : "))
             input_msg = str(input("masukkan path pesan : "))
-            citra = Citra(input_img)
+            citra = CitraLSB(input_img)
             citra.load_file_message(input_msg)
-            citra.lsb(is_encrypted=True, key='sst', is_random=True)
+            citra.encode_lsb(is_encrypted=True, key='sst')
             file_name = str(input("Masukkan nama gambar hasil stego untuk disimpan :"))
             citra.save_stego_image(file_name)
+            print("PNSR : " , pnsr(citra.array, citra.ori_img))
         elif inp == 2 :
             input_img = str(input("Masukkan path gambar : "))
             file_name = str(input("Masukkan nama gambar pesan untuk disimpan :"))
-            citra = Citra(input_img)
+            citra = CitraLSB(input_img)
             citra.decode_lsb(file_name, 'sst')
