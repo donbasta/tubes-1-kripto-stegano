@@ -75,7 +75,7 @@ class CitraBPCS:
         if (msg_index < msg_len):
             raise Exception('Message too big.')
 
-    def decode_bpcs(self, treshold = 0.3, key = None):
+    def decode_bpcs(self, path, treshold = 0.3, key = None):
         msg_bitplane = []
         for row in range(0, self.row - 8 + 1, 8):
             for col in range(0, self.row - 8 + 1, 8):
@@ -88,8 +88,9 @@ class CitraBPCS:
                             msg_bitplane.append(bitplane)
         
         msgBPCS = MessageExtractorBPCS(msg_bitplane, key, treshold)
-        msgBPCS.extract_message()
+        msgBPCS.extract_message(path)
 
+        
 
 
     def input_random_msg(self, bitplane, msg, random_array):

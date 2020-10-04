@@ -157,7 +157,7 @@ class MessageExtractorBPCS():
         self.key = key
         self.treshold = treshold
 
-    def extract_message(self):
+    def extract_message(self, path):
         print('extract message ...')
         
         #extract message
@@ -183,6 +183,10 @@ class MessageExtractorBPCS():
         msg_bitplane = self.m_bitplane[mark[0]+1 : mark[1]]
         self.decode_conjugation(conjugation_bitplane)   #decode conjugation map
         byte_result = self.decode_message(msg_bitplane)
+
+        file = open(path + "." + self.extension, 'wb')
+        file.write(byte_result)
+        file.close()
 
     def decode_header(self, bitplane):
         header = self.bitplane_to_byte(bitplane).decode('latin1')
@@ -231,6 +235,7 @@ class MessageExtractorBPCS():
         if (self.encrypted):
             byte_msg = decrypt_vigenere(self.key, byte_msg)
         print(byte_msg.decode('latin1'))
+        return byte_msg
         
     def bitplane_to_byte(self, bitplane_array):
         byte_array = []
