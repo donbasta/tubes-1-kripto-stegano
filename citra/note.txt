@@ -1,3 +1,25 @@
+imgEncodeButton
+messageButton
+inputFileEncode
+inputFileMessage
+lsbEncode
+bpcsEncode
+encryptedEncode
+randomizedEncode
+tresholdEncode
+startEncode
+keyEncode
+
+
+inputFileDecode
+imgDecodeButton
+lsbDecode
+bpcsDecode
+keyDecode
+tresholdDecode
+startDecode
+
+
 citra -> LSB dan BPCS 
 vigenere cipher
 
