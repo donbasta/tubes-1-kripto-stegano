@@ -104,23 +104,25 @@ class MainWindow(QMainWindow):
             return
 
     def decode(self):
-        print("decode")
-        if (self.lsbDecode.isChecked()):
-            print("lsb")
-            lsb = CitraLSB(self.img_decode_path)
-            name = QFileDialog.getSaveFileName(self, 'Save File')
-            lsb.decode_lsb(name[0], self.keyDecode.text())
-
-        elif self.bpcsDecode.isChecked():
-            if self.validate_treshold(self.tresholdDecode.text()):return
-            bpcs = CitraBPCS(self.img_decode_path)
-            name = QFileDialog.getSaveFileName(self, 'Save File')
-            bpcs.decode_bpcs(name[0], self.treshold, self.keyDecode.text())
-            print("bpcs")
-        else:
-            self.warning_wrong_input("Pilih metode lsb/bpcs")
-        if self.img_input_decode_validation():return
-        pass
+        try:
+            if (self.lsbDecode.isChecked()):
+                if self.img_input_decode_validation():return
+                lsb = CitraLSB(self.img_decode_path)
+                name = QFileDialog.getSaveFileName(self, 'Save File')
+                lsb.decode_lsb(name[0], self.keyDecode.text())
+                
+            elif self.bpcsDecode.isChecked():
+                if self.img_input_decode_validation():return
+                if self.validate_treshold(self.tresholdDecode.text()):return
+                bpcs = CitraBPCS(self.img_decode_path)
+                name = QFileDialog.getSaveFileName(self, 'Save File')
+                bpcs.decode_bpcs(name[0], self.treshold, self.keyDecode.text())
+                print("bpcs")
+            else:
+                self.warning_wrong_input("Pilih metode lsb/bpcs")
+        except Exception as e:
+            self.show_error(str(e), False)
+            return
 
     def validate_treshold(self, obj):
         try:
@@ -168,11 +170,14 @@ class MainWindow(QMainWindow):
             return True
         return False
 
-    def show_error(self, msg):
+    def show_error(self, msg, sisip=True):
         cek = msg
         msg = QMessageBox()
         msg.setIcon(QMessageBox.Warning)
-        msg.setText("Gagal Sisipkan Pesan!")
+        if sisip:
+            msg.setText("Gagal Sisipkan Pesan!")
+        else:
+            msg.setText("Gagal ekstrak Pesan!")
         msg.setInformativeText(cek)
         msg.exec_()
 
