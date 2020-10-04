@@ -52,7 +52,7 @@ class CitraBPCS:
                 
                 for i in range((self.channel)):
                     for j in range(len(channels_bitplane[i])):
-                        if (self.calculate_complexity(channels_bitplane[i][j]) > treshold):
+                        if (self.calculate_complexity(self.pbc_to_cgc( channels_bitplane[i][j] )) > treshold):
                             # TO DO : convert pbt to cgc
                             if (randomize and msg_index != 0):
                                 channels_bitplane[i][j] = self.input_random_msg(channels_bitplane[i][j], msg[msg_index], random_array)
@@ -84,7 +84,7 @@ class CitraBPCS:
 
                 for i in range(self.channel):
                     for bitplane in channels_bitplane[i]:
-                        if (self.calculate_complexity(bitplane) > treshold):
+                        if (self.calculate_complexity(self.pbc_to_cgc(bitplane)) > treshold):
                             msg_bitplane.append(bitplane)
         
         msgBPCS = MessageExtractorBPCS(msg_bitplane, key, treshold)
@@ -124,12 +124,6 @@ class CitraBPCS:
                     count += 1
         return count / 112
 
-    def pbc_to_cgc(self, bitplane):
-        pass
-
-    def cgc_to_pbc(self, bitplane):
-        pass
-
     def generate_random_seed(self, key):
         temp = 0
         for c in key:
@@ -140,24 +134,37 @@ class CitraBPCS:
         im = Image.fromarray(self.img)
         im.save(file_name + self.img_extension)
 
+    def pbc_to_cgc(self, bitplane):
+        new_bitplane = np.array([[0 for i in range(8)] for j in range(8)])
+        for i in range(8):
+            new_bitplane[i][0] = bitplane[i][0]
+        for i in range(8):
+            for j in range(1, 8):
+                new_bitplane[i][j] = bitplane[i][j-1] ^ bitplane[i][j]
+        return bitplane
+
 if __name__ == "__main__":
     s = time.time()
     citra = CitraBPCS('gambar/raw.png')
-    citra.encode_bpcs('pesan/msg.txt', key = 'lala', encrypted=True, randomize=True)
+    citra.encode_bpcs('pesan/msg.txt', key = 'lala', encrypted=True, randomize=True, treshold=0.3)
     citra.save_stego_image('hasil/bpcs')
 
     c_decode = CitraBPCS('hasil/bpcs.bmp')
-    c_decode.decode_bpcs(key='lala')
+    c_decode.decode_bpcs(key='lala', treshold=0.3)
     e = time.time()
     print(e - s)
+
     # konj_bitplane = np.array([
-    #     [0,1,0,1,0,1,0,1],
+    #     [1,1,0,1,0,1,0,1],
+    #     [1,0,1,0,1,0,1,0],
+    #     [1,1,0,1,0,1,0,1],
     #     [1,0,1,0,1,0,1,0],
     #     [0,1,0,1,0,1,0,1],
-    #     [1,0,1,0,1,0,1,0],
+    #     [0,0,1,0,1,0,1,0],
     #     [0,1,0,1,0,1,0,1],
-    #     [1,0,1,0,1,0,1,0],
-    #     [0,1,0,1,0,1,0,1],
-    #     [1,0,1,0,1,0,1,0]
+    #     [0,1,0,1,0,1,0,1]
     # ])
-    # print(citra.calculate_complexity(konj_bitplane))
+    # print(konj_bitplane[0][0])
+    # cek2 = citra.pbc_to_cgc(konj_bitplane)
+    # print(cek2)
+    # print(konj_bitplane)

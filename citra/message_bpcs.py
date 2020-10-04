@@ -40,6 +40,7 @@ class MessageBPCS():
         msg = []
         # header
         header_bitplane = self.get_header_bitplane()
+        print(header_bitplane)
         # konjugation map
         conjugation_bitplane = self.get_conjugation_bitplane()
         #batas
@@ -95,7 +96,7 @@ class MessageBPCS():
     def conjugate_message(self):
         result = []
         for i in range(len(self.m_bitplane)):
-            complexity = self.calculate_complexity(self.m_bitplane[i])
+            complexity = self.calculate_complexity(self.pbc_to_cgc(self.m_bitplane[i]))
             if (complexity < self.treshold):
                 self.m_bitplane[i] = self.conjugate(self.m_bitplane[i])
                 result.append(i)
@@ -113,6 +114,16 @@ class MessageBPCS():
 
     def conjugate(self, bitplane):
         return bitplane ^ self.konj_bitplane
+
+    def pbc_to_cgc(self, bitplane):
+        # new_bitplane = bitplane.copy()
+        new_bitplane = np.array([[0 for i in range(8)] for j in range(8)])
+        for i in range(8):
+            new_bitplane[i][0] = bitplane[i][0]
+        for i in range(8):
+            for j in range(1, 8):
+                new_bitplane[i][j] = bitplane[i][j-1] ^ bitplane[i][j]
+        return bitplane
 
     
 
@@ -151,6 +162,7 @@ class MessageExtractorBPCS():
         
         #extract message
         header_bitplane = self.m_bitplane[0]
+        print(header_bitplane)
         self.decode_header(header_bitplane)             #decode header
         # is random
         #extract using randomize
