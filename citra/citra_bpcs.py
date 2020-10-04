@@ -3,7 +3,8 @@ import numpy as np
 import os
 import cv2
 import random
-from message_bpcs import MessageBPCS
+from message_bpcs import MessageBPCS, MessageExtractorBPCS
+import time
 '''
 Algoritma BPCS
 format pesan : teratur/acak , encrypted atau engga, treshold (di bitplane 1 r) ujung kiri atas
@@ -22,7 +23,7 @@ class CitraBPCS:
             self.channel = 3
         else:
             raise Exception('File input cannot processed.')
-        
+        self.img_ori = np.array(img)
         self.img = np.array(img)
         self.img_extension = os.path.splitext(path)[1].lower()
         self.row = self.img.shape[0]
@@ -35,12 +36,12 @@ class CitraBPCS:
 
         # msg = load massage dulu, return array of massage
         msgBPCS = MessageBPCS(path, treshold, key, encrypted, randomize)
-        msg = []
-        len_header = 3
+        msg = msgBPCS.get_message_bitplane()
 
+        random_array = []
         if (randomize):
             random.seed(self.generate_random_seed(key))
-
+            random_array = random.sample(range(64), 64)
         msg_index = 0
         msg_len = len(msg)
         for row in range(0, self.row - 8 + 1, 8):
@@ -51,17 +52,13 @@ class CitraBPCS:
                 
                 for i in range((self.channel)):
                     for j in range(len(channels_bitplane[i])):
-                        if (msg_index < len_header):
-                            channels_bitplane[i][j] = msg[msg_index]
-                        else:
-                            if (self.calculate_complexity(channels_bitplane[i][j]) > treshold):
-                                # TO DO : convert pbt to cgc
-                                if (randomize):
-                                    random_array = random.sample(range(64), 64)
-                                    channels_bitplane[i][j] = self.input_random_msg(channels_bitplane[i][j], msg[msg_index], random_array)
-                                else:
-                                    channels_bitplane[i][j] = msg[msg_index]
-                                msg_index += 1
+                        if (self.calculate_complexity(channels_bitplane[i][j]) > treshold):
+                            # TO DO : convert pbt to cgc
+                            if (randomize and msg_index != 0):
+                                channels_bitplane[i][j] = self.input_random_msg(channels_bitplane[i][j], msg[msg_index], random_array)
+                            else:
+                                channels_bitplane[i][j] = msg[msg_index]
+                            msg_index += 1
 
                         if msg_index >= msg_len : break
                     if msg_index >= msg_len : break
@@ -78,15 +75,29 @@ class CitraBPCS:
         if (msg_index < msg_len):
             raise Exception('Message too big.')
 
-    def decode_bpcs():
-        pass
+    def decode_bpcs(self, treshold = 0.3, key = None):
+        msg_bitplane = []
+        for row in range(0, self.row - 8 + 1, 8):
+            for col in range(0, self.row - 8 + 1, 8):
+                channels_block = cv2.split(self.img[row:row+8, col:col+8])
+                channels_bitplane = [self.channel_to_bitplane(block) for block in channels_block]
+
+                for i in range(self.channel):
+                    for bitplane in channels_bitplane[i]:
+                        if (self.calculate_complexity(bitplane) > treshold):
+                            msg_bitplane.append(bitplane)
+        
+        msgBPCS = MessageExtractorBPCS(msg_bitplane, key, treshold)
+        msgBPCS.extract_message()
+
+
 
     def input_random_msg(self, bitplane, msg, random_array):
         i = 0
-        for row in msg_bitplane:
+        for row in msg:
             for cell in row:
                 j = random_array[i] // 8
-                k = random_array % 8
+                k = random_array[i] % 8
                 bitplane[j][k] = cell
                 i += 1
         return bitplane
@@ -125,17 +136,28 @@ class CitraBPCS:
             temp += ord(c)
         return temp
 
+    def save_stego_image(self, file_name):
+        im = Image.fromarray(self.img)
+        im.save(file_name + self.img_extension)
+
 if __name__ == "__main__":
-    citra = CitraBPCS('insta.png')
-    citra.encode_bpcs('note.txt')
-    konj_bitplane = np.array([
-        [0,1,0,1,0,1,0,1],
-        [1,0,1,0,1,0,1,0],
-        [0,1,0,1,0,1,0,1],
-        [1,0,1,0,1,0,1,0],
-        [0,1,0,1,0,1,0,1],
-        [1,0,1,0,1,0,1,0],
-        [0,1,0,1,0,1,0,1],
-        [1,0,1,0,1,0,1,0]
-    ])
-    print(citra.calculate_complexity(konj_bitplane))
+    s = time.time()
+    citra = CitraBPCS('gambar/raw.png')
+    citra.encode_bpcs('pesan/msg.txt', key = 'lala', encrypted=True, randomize=True)
+    citra.save_stego_image('hasil/bpcs')
+
+    c_decode = CitraBPCS('hasil/bpcs.bmp')
+    c_decode.decode_bpcs(key='lala')
+    e = time.time()
+    print(e - s)
+    # konj_bitplane = np.array([
+    #     [0,1,0,1,0,1,0,1],
+    #     [1,0,1,0,1,0,1,0],
+    #     [0,1,0,1,0,1,0,1],
+    #     [1,0,1,0,1,0,1,0],
+    #     [0,1,0,1,0,1,0,1],
+    #     [1,0,1,0,1,0,1,0],
+    #     [0,1,0,1,0,1,0,1],
+    #     [1,0,1,0,1,0,1,0]
+    # ])
+    # print(citra.calculate_complexity(konj_bitplane))
