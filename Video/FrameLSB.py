@@ -2,36 +2,7 @@ import base64
 from PIL import Image
 import math
 import utils
-
-
-def StringToBits(data_string: str):
-    result = []
-    for char in data_string:
-        bits = bin(ord(char))[2:]
-        bits = '00000000'[len(bits):] + bits
-        result.extend([int(bit) for bit in bits])
-    return result
-
-
-def BitsToString(data_bits: list):
-    chars = []
-    for bit in range(int(len(data_bits)/8)):
-        byte = data_bits[bit*8:(bit+1)*8]
-        chars.append(chr(int(''.join([str(bit) for bit in byte]), 2)))
-    return ''.join(chars)
-
-
-def IntToBits(data_integer: int):
-    bits = bin(data_integer)[2:]
-    bits = '0' * (32 - len(bits)) + bits
-    return [int(bit) for bit in bits]
-
-
-def BitsToInt(data_bits: list):
-    res = 0
-    for bit in data_bits:
-        res = (res << 1) | bit
-    return res
+from utils import StringToBits, BitsToString, IntToBits, BitsToInt
 
 
 def ConstructBitsArray(data_input: str, mode: list):

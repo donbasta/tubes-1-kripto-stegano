@@ -7,6 +7,8 @@ from vigenere import Vigenere
 import utils
 import os
 import shutil
+import cv2
+import numpy as np
 
 
 class Ui(QtWidgets.QMainWindow):
@@ -69,10 +71,25 @@ class Ui(QtWidgets.QMainWindow):
             QtWidgets.QPushButton, 'buttonGetMetadata')
         self.buttonGetMetadata.clicked.connect(self.getMetadata)
 
+        self.buttonOpenInput = self.findChild(
+            QtWidgets.QPushButton, 'buttonOpenInput')
+        self.buttonOpenFile = self.findChild(
+            QtWidgets.QPushButton, 'buttonOpenFile')
+        self.buttonOpenOutput = self.findChild(
+            QtWidgets.QPushButton, 'buttonOpenOutput')
+        self.buttonOpenInput.clicked.connect(self.openInput)
+        self.buttonOpenFile.clicked.connect(self.openFile)
+        self.buttonOpenOutput.clicked.connect(self.openOutput)
+
+        self.buttonPSNR = self.findChild(
+            QtWidgets.QPushButton, 'buttonPSNR')
+        self.buttonPSNR.clicked.connect(self.PSNR)
+
         self.labelFrameCount = self.findChild(
             QtWidgets.QLabel, 'labelFrameCount')
         self.labelFilename = self.findChild(QtWidgets.QLabel, 'labelFilename')
         self.labelExt = self.findChild(QtWidgets.QLabel, 'labelExt')
+        self.labelPSNR = self.findChild(QtWidgets.QLabel, 'labelPSNR')
 
         self.show()
 
@@ -80,6 +97,45 @@ class Ui(QtWidgets.QMainWindow):
         for item in QButtonGroupObject:
             if item.isChecked():
                 return item.text()
+
+    def PSNR(self):
+        path1 = self.lineEditInputVideo.text()
+        path2 = self.lineEditOutputVideo.text()
+        if path1 != '' and path2 != '':
+            vid1 = cv2.VideoCapture(path1)
+            vid2 = cv2.VideoCapture(path2)
+            framecounter = 1
+            psnrList = []
+            while(vid1.isOpened() and vid2.isOpened()):
+                try:
+                    stat1, img1 = vid1.read()
+                    stat2, img2 = vid2.read()
+                    if stat1 and stat2:
+                        psnr = cv2.PSNR(img1, img2)
+                        psnrList.append(psnr)
+                        framecounter += 1
+                    else:
+                        break
+                except cv2.error:
+                    self.labelPSNR.setText("Error on calculating PSNR")
+                    return
+            meanPSNR = round(np.mean(psnrList), 2)
+            self.labelPSNR.setText(str(meanPSNR))
+
+    def openInput(self):
+        path = self.lineEditInputVideo.text()
+        if path != '':
+            os.startfile(path)
+
+    def openFile(self):
+        path = self.lineEditInputFile.text()
+        if path != '':
+            os.startfile(path)
+
+    def openOutput(self):
+        path = self.lineEditOutputVideo.text()
+        if path != '':
+            os.startfile(path)
 
     def openInputFileDialog(self, target):
         options = QtWidgets.QFileDialog.Options()
