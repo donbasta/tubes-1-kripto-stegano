@@ -1,0 +1,55 @@
+imgEncodeButton
+messageButton
+inputFileEncode
+inputFileMessage
+lsbEncode
+bpcsEncode
+encryptedEncode
+randomizedEncode
+tresholdEncode
+startEncode
+keyEncode
+
+
+inputFileDecode
+imgDecodeButton
+lsbDecode
+bpcsDecode
+keyDecode
+tresholdDecode
+startDecode
+
+
+citra -> LSB dan BPCS 
+vigenere cipher
+
+pesan yang disisipkan -> sembarang file yang tidak melebihi kapasitas
+
+input program :
+- citra digital (BMP atau PNG)
+- nama file pesan (ekstensi bebas)
+- pesan dienkripsi atau tidak (jika iya minta kunci)
+- disimpan di bit acak atau enggak
+
+- treshold (khusus BPCS) default = 0.3
+
+acak/enggak
+enkripsi/enggak
+ekstensi file
+pesan
+batas pesan berakhir
+
+metode : LSB dan BPCS
+
+A. Penyisipan pesan
+    input :
+    - path gambar yang disisipi
+    - path pesan
+    - enkripsi/tidak
+    -acak/sekuensial
+    1. Metode LSB
+    2. Metode BPCS
+        tambahain input : treshold
+B. Ekstraksi pesan
+    1. Metode LSB , input (path gambar, key(optional))
+    2. Metode BPCS, input (path gambar, key(optional), treshold(optional))
