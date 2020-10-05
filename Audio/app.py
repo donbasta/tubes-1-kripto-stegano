@@ -1,6 +1,6 @@
 from PyQt5 import QtWidgets, QtCore, QtMultimedia
 from stego_wav_1 import Ui_MainWindow  # importing our generated file
-import sys, util
+import sys#, util
 from PyQt5.QtWidgets import QMessageBox, QFileDialog
 
 from audio import Audio

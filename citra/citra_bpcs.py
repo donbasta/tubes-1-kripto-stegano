@@ -6,11 +6,7 @@ import random
 from message_bpcs import MessageBPCS, MessageExtractorBPCS
 import time
 from helper import pnsr
-'''
-Algoritma BPCS
-format pesan : teratur/acak , encrypted atau engga, treshold (di bitplane 1 r) ujung kiri atas
-pesan ### konjugation map
-'''
+
 class CitraBPCS:
     def __init__(self, path):
         extension = ['.bmp', '.png']
@@ -52,17 +48,18 @@ class CitraBPCS:
                 channels_bitplane = [self.channel_to_bitplane(block) for block in channels_block]
                 
                 for i in range((self.channel)):
-                    for j in range(len(channels_bitplane[i])):
-                        if (self.calculate_complexity(self.pbc_to_cgc( channels_bitplane[i][j] )) > treshold):
-                            # TO DO : convert pbt to cgc
-                            if (randomize and msg_index != 0):
-                                channels_bitplane[i][j] = self.input_random_msg(channels_bitplane[i][j], msg[msg_index], random_array)
-                            else:
-                                channels_bitplane[i][j] = msg[msg_index]
-                            msg_index += 1
+                    if (len(channels_bitplane) >= self.channel):
+                        for j in range(len(channels_bitplane[i])):
+                            if (self.calculate_complexity(self.pbc_to_cgc( channels_bitplane[i][j] )) > treshold):
+                                # TO DO : convert pbt to cgc
+                                if (randomize and msg_index != 0):
+                                    channels_bitplane[i][j] = self.input_random_msg(channels_bitplane[i][j], msg[msg_index], random_array)
+                                else:
+                                    channels_bitplane[i][j] = msg[msg_index]
+                                msg_index += 1
 
+                            if msg_index >= msg_len : break
                         if msg_index >= msg_len : break
-                    if msg_index >= msg_len : break
 
                 channels_after_encode = [self.bitplane_to_channel(bitplane) for bitplane in channels_bitplane]
                 # merge
@@ -77,16 +74,17 @@ class CitraBPCS:
             raise Exception('Message too big.')
 
     def decode_bpcs(self, path, treshold = 0.3, key = None):
+        print(self.channel)
         msg_bitplane = []
         for row in range(0, self.row - 8 + 1, 8):
             for col in range(0, self.row - 8 + 1, 8):
                 channels_block = cv2.split(self.img[row:row+8, col:col+8])
                 channels_bitplane = [self.channel_to_bitplane(block) for block in channels_block]
-
                 for i in range(self.channel):
-                    for bitplane in channels_bitplane[i]:
-                        if (self.calculate_complexity(self.pbc_to_cgc(bitplane)) > treshold):
-                            msg_bitplane.append(bitplane)
+                    if (len(channels_bitplane) >= self.channel):
+                        for bitplane in channels_bitplane[i]:
+                            if (self.calculate_complexity(self.pbc_to_cgc(bitplane)) > treshold):
+                                msg_bitplane.append(bitplane)
         
         msgBPCS = MessageExtractorBPCS(msg_bitplane, key, treshold)
         msgBPCS.extract_message(path)
