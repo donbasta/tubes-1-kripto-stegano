@@ -2,6 +2,7 @@ from PyQt5 import QtWidgets, QtCore, QtMultimedia
 from Audio.stego_wav_1 import Ui_MainWindow  # importing our generated file
 import sys
 from PyQt5.QtWidgets import QMessageBox, QFileDialog
+from Audio.audio import calc_psnr
 
 from Audio.audio import Audio
 
@@ -137,13 +138,13 @@ class AudioUI(QtWidgets.QMainWindow):
   def hide(self):
     try:
       audio = Audio(self.audioInputPath)
-      # psnr_i = audio.get_signal()
+      psnr_i = audio.get_amplitude()
       audio.load_file_message(self.fileInputPath)
       audio.lsb(is_encrypted=self.with_encryption, key=self.key, is_random=self.with_random)
       audio.save_stego_audio(self.audioOutputPath)
-      # psnr_f = Audio(self.audioOutputPath).get_signal()
-      # psnr = util.calc_psnr(psnr_i, psnr_f)
-      self.inform_successful()
+      psnr_f = Audio(self.audioOutputPath).get_amplitude()
+      psnr = calc_psnr(psnr_i, psnr_f)
+      self.inform_successful(psnr)
     except Exception as e:
       self.inform_unsuccessful(str(e))
 
@@ -152,13 +153,13 @@ class AudioUI(QtWidgets.QMainWindow):
     audio = Audio(self.audioInputPath)
     audio.decode_lsb(self.fileInputPath, key=self.key)
 
-  def inform_successful(self):
+  def inform_successful(self, psnr):
     msg = QMessageBox()
     msg.setIcon(QMessageBox.Information)
     msg.setText("Sukses")
     msg.setInformativeText("Penyisipan berhasil dilakukan")
     msg.setWindowTitle("Penyisipan sukses")
-    # msg.setDetailText("Nilai dari PSMR (Kualitas Audio) adalah: {}".format(psnr))
+    msg.setDetailedText("Nilai dari PSMR (Kualitas Audio) adalah: {}".format(psnr))
     msg.setStandardButtons(QMessageBox.Ok)
 
     retval = msg.exec_()

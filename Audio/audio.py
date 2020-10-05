@@ -1,4 +1,5 @@
 import wave
+from scipy.io import wavfile
 import numpy as np
 from Audio.vigenere import Vigenere
 import os
@@ -6,6 +7,11 @@ import math
 import random
 
 byte_depth_to_dtype = {1: np.uint8, 2: np.uint16}
+
+def calc_psnr(a, b):
+  if a == b:
+    return "Infinity"
+  return 20 * math.log(b, 10) - 20 * math.log(abs(a - b))
 
 class Audio:
 
@@ -16,6 +22,8 @@ class Audio:
     if ext not in extension:
       raise Exception("Wrong file extension")
     self.audio_extension = ext
+
+    self.path = path
 
     audio = wave.open(path, "r")
     
@@ -179,7 +187,11 @@ class Audio:
     random.seed(seed)
     random.shuffle(temp)
     return temp
-    
+
+  def get_amplitude(self):
+    _, data = wavfile.read(self.path)
+    p = np.mean(np.abs(data))
+    return p
 
 if __name__ == "__main__":
 
