@@ -1,19 +1,19 @@
 from PyQt5 import QtWidgets, uic
 import sys
-import FileReader as fr
-from FrameExtractor import FrameExtractor
-from VideoLSB import VideoLSB, VideoUnLSB
-from vigenere import Vigenere
-import utils
+import Video.FileReader as fr
+from Video.FrameExtractor import FrameExtractor
+from Video.VideoLSB import VideoLSB, VideoUnLSB
+from Video.vigenere import Vigenere
+import Video.utils
 import os
 import shutil
 import cv2
 import numpy as np
 
 
-class Ui(QtWidgets.QMainWindow):
+class VideoUI(QtWidgets.QMainWindow):
     def __init__(self):
-        super(Ui, self).__init__()
+        super(VideoUI, self).__init__()
         uic.loadUi('video-stegano.ui', self)
 
         self.lineEditInputFile = self.findChild(
@@ -318,7 +318,7 @@ class Ui(QtWidgets.QMainWindow):
                     binary_string, self.lineEditOutputVideo.text())
                 shutil.rmtree("temp")
 
-
-app = QtWidgets.QApplication(sys.argv)
-window = Ui()
-app.exec_()
+if __name__ == "__main__":
+    app = QtWidgets.QApplication(sys.argv)
+    window = VideoUI()
+    app.exec_()

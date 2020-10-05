@@ -3,12 +3,12 @@ import sys
 from PyQt5.uic import loadUi
 from PyQt5.QtWidgets import QApplication, QMainWindow, QFileDialog, QGraphicsPixmapItem, QGraphicsScene, QErrorMessage, QMessageBox
 from PyQt5.QtGui import QPixmap
-from citra_lsb import CitraLSB
-from citra_bpcs import CitraBPCS
+from Citra.citra_lsb import CitraLSB
+from Citra.citra_bpcs import CitraBPCS
 
-class MainWindow(QMainWindow):
+class CitraUI(QMainWindow):
     def __init__(self):
-        super(MainWindow, self).__init__()
+        super(CitraUI, self).__init__()
         loadUi('citra.ui', self)
 
         self.img_encode_path = ''
@@ -187,6 +187,6 @@ class MainWindow(QMainWindow):
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    mainWindow = MainWindow()
+    mainWindow = CitraUI()
     mainWindow.show()
     sys.exit(app.exec())

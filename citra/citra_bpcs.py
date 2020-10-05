@@ -3,9 +3,9 @@ import numpy as np
 import os
 import cv2
 import random
-from message_bpcs import MessageBPCS, MessageExtractorBPCS
+from Citra.message_bpcs import MessageBPCS, MessageExtractorBPCS
 import time
-from helper import pnsr
+from Citra.helper import pnsr
 '''
 Algoritma BPCS
 format pesan : teratur/acak , encrypted atau engga, treshold (di bitplane 1 r) ujung kiri atas
