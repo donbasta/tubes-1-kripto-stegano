@@ -4,6 +4,7 @@ from vigenere import Vigenere
 import os
 import math
 import random
+from oct2py import Oct2Py
 
 byte_depth_to_dtype = {1: np.uint8, 2: np.uint16}
 
@@ -53,6 +54,7 @@ class Audio:
 
     self.msg_extension = os.path.splitext(path)[1].lower()[1:]
     if len(msg_bytes) > self.payload//8 - 1 - len(self.msg_extension) - 5:
+      print("tidak muat")
       raise Exception('{} bytes file is too big'.format(len(msg_bytes)))
     self.message = msg_bytes
 
@@ -178,6 +180,7 @@ class Audio:
     random.seed(seed)
     random.shuffle(temp)
     return temp
+    
 
 if __name__ == "__main__":
 
