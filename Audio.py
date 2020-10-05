@@ -101,7 +101,7 @@ class Audio:
       if data_index >= data_len:
         break
 
-  def decode_lsb(self, file_name, key=None):
+  def decode_lsb(self, file_path, key=None):
 
     audio = self.array
     is_random = audio[0][-1]
@@ -142,7 +142,9 @@ class Audio:
       assert key != None
       decoded_msg = self.decrypt_vigenere(key, decoded_msg)
 
-    with open("tesuto" + "." + file_ext, "w+b") as file:
+    full_file_path = file_path + "." + file_ext
+    print(full_file_path)
+    with open(full_file_path, "w+b") as file:
       file.write(decoded_msg)
 
   def encrypt_vigenere(self, key):

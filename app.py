@@ -1,7 +1,7 @@
 from PyQt5 import QtWidgets
 from stego_wav import Ui_MainWindow  # importing our generated file
 import sys
-from PyQt5.QtWidgets import QMessageBox
+from PyQt5.QtWidgets import QMessageBox, QFileDialog
 
 from audio import Audio
 
@@ -26,7 +26,7 @@ class UI(QtWidgets.QMainWindow):
 
     self.ui.buttonInputAudio.clicked.connect(self.load_input_audio)
     self.ui.buttonOutputAudio.clicked.connect(self.load_output_audio)
-    self.ui.buttonFileInput.clicked.connect(self.load_input_file)
+    self.ui.buttonFileInput.clicked.connect(self.io_file)
     self.ui.buttonGo.clicked.connect(self.go)
 
     self.set_params()
@@ -54,6 +54,17 @@ class UI(QtWidgets.QMainWindow):
     self.audioOutputPath = fname[0]
     self.ui.lineEditOutputAudio.setText(self.audioOutputPath)
 
+  def save_output_file(self):
+    options = QFileDialog.Options()
+    options |= QFileDialog.DontUseNativeDialog
+    self.fileInputPath, _ = QFileDialog.getSaveFileName(self,"Window name","","All Files (*)", options=options)
+    self.ui.lineEditInputFile.setText(self.fileInputPath)
+
+  def io_file(self):
+    if self.mode == "hide":
+      self.load_input_file()
+    elif self.mode =="retrieve":
+      self.save_output_file()
 
   def set_params(self, mode="hide", with_encryption=False, with_random=False):
     self.mode = mode
@@ -73,12 +84,10 @@ class UI(QtWidgets.QMainWindow):
     if self.ui.radioModeHide.isChecked():
       self.ui.radioModeRetrieve.setChecked(False)
       self.mode = "hide"
-      
       self.changeMode("hide")
     if self.ui.radioModeRetrieve.isChecked():
       self.ui.radioModeHide.setChecked(False)
       self.mode = "retrieve"
-      
       self.changeMode("retrieve")
     if self.ui.radioEncryptionWithout.isChecked():
       self.ui.radioEncryptionWith.setChecked(False)
@@ -131,16 +140,8 @@ class UI(QtWidgets.QMainWindow):
 
 
   def retrieve(self):
-    # audio_stego_path = input("Masukkan path ke audio cover: (format .wav): ")
-    # audio_stego_path = output_path_tests[0]
-    # Audio = Audio(audio_stego_path)
     audio = Audio(self.audioInputPath)
     audio.decode_lsb(self.fileInputPath, key=self.key)
-
-    # output_path = input("Masukkan file yang ingin disimpan: ")
-    # output_path = de_stego_path_tests[1]
-    # Audio.decode_lsb(output_path, key="abc")
-    pass
 
   def inform_successful(self):
     msg = QMessageBox()
