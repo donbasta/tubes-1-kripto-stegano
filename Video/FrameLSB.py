@@ -1,7 +1,7 @@
 import base64
 from PIL import Image
 import math
-import Video.utils
+import Video.utils as utils
 from Video.utils import StringToBits, BitsToString, IntToBits, BitsToInt
 
 

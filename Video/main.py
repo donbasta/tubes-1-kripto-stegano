@@ -4,11 +4,12 @@ import Video.FileReader as fr
 from Video.FrameExtractor import FrameExtractor
 from Video.VideoLSB import VideoLSB, VideoUnLSB
 from Video.vigenere import Vigenere
-import Video.utils
+import Video.utils as utils
 import os
 import shutil
 import cv2
 import numpy as np
+import math
 
 
 class VideoUI(QtWidgets.QMainWindow):
@@ -181,142 +182,172 @@ class VideoUI(QtWidgets.QMainWindow):
             self.retrievalModeBit = mode_bit
 
     def process(self):
-        print("Process is called")
-        storingMode = self.comboBoxStoringMode.currentText()
-        mode = self.modeRadioGroup.checkedButton().text()
-        encrypt = self.encryptionRadioGroup.checkedButton().text()
-        key = self.lineEditKey.text()
-        if storingMode.startswith("1.1"):
-            storingMode = [0, 0]
-        elif storingMode.startswith("1.2"):
-            storingMode = [0, 1]
-        elif storingMode.startswith("2.1"):
-            storingMode = [1, 0]
-        else:
-            storingMode = [1, 1]
-
-        seed = 0
-        for e in key:
-            seed += ord(e)
-
-        if mode.startswith("Store"):
-            if encrypt.startswith("With (Vi"):
-                # perform encryption
-                if os.path.exists('temp'):
-                    shutil.rmtree("temp")
-                # just do it
-                # print(self.lineEditInputFile.text())
-                filepath = self.lineEditInputFile.text()
-                filename = os.path.basename(filepath)
-                filename = filename.split('.')
-                print(filename[0], filename[1])
-                if not os.path.exists('temp'):
-                    os.makedirs('temp')
-
-                binary_file = fr.ReadFileAsByteArray(
-                    self.lineEditInputFile.text())
-
-                vig = Vigenere()
-                vig.input_key(self.lineEditKey.text())
-                vig.set_auto(False)
-                vig.set_full(False)
-                vig.set_extended(True)
-                encrypted = vig.encrypt(''.join([chr(i) for i in binary_file]))
-                binary_file = bytes(encrypted)
-
-                extractor = FrameExtractor(
-                    self.lineEditInputVideo.text(), "temp")
-                extractor.load()
-                extractor.extract()
-                print("Extracting done")
-                lsb = VideoLSB(self.lineEditInputVideo.text(),
-                               binary_file, self.lineEditOutputVideo.text(), storingMode)
-                lsb.stego_data(filename[0], filename[1], storingMode, seed)
-                lsb.makeVideo(self.lineEditOutputVideo.text())
-                shutil.rmtree("temp")
+        try:
+            print("Process is called")
+            storingMode = self.comboBoxStoringMode.currentText()
+            mode = self.modeRadioGroup.checkedButton().text()
+            encrypt = self.encryptionRadioGroup.checkedButton().text()
+            key = self.lineEditKey.text()
+            vcap = cv2.VideoCapture(self.lineEditInputVideo.text())
+            width = int(vcap.get(cv2.CAP_PROP_FRAME_WIDTH))
+            height = int(vcap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+            frames = int(vcap.get(cv2.CAP_PROP_FRAME_COUNT))
+            print(f"{width}x{height} {frames} frames.")
+            total_data = math.floor(
+                (((width * height * 3) - 34) * (frames - 1)) / 8)
+            inputFileSize = os.path.getsize(self.lineEditInputFile.text())
+            if inputFileSize > total_data:
+                error_dialog = QtWidgets.QMessageBox()
+                error_dialog.setIcon(QtWidgets.QMessageBox.Critical)
+                error_dialog.setText("Error!")
+                error_dialog.setWindowTitle("File size error")
+                error_dialog.setInformativeText(
+                    "File input is too big! Maximum {} bytes or {} MB".format(total_data, round(total_data/(1024*1024), 2)))
+                error_dialog.exec_()
+                return
+            if storingMode.startswith("1.1"):
+                storingMode = [0, 0]
+            elif storingMode.startswith("1.2"):
+                storingMode = [0, 1]
+            elif storingMode.startswith("2.1"):
+                storingMode = [1, 0]
             else:
-                if os.path.exists('temp'):
+                storingMode = [1, 1]
+
+            seed = 0
+            for e in key:
+                seed += ord(e)
+
+            if mode.startswith("Store"):
+                if encrypt.startswith("With (Vi"):
+                    # perform encryption
+                    if os.path.exists('temp'):
+                        shutil.rmtree("temp")
+                    # just do it
+                    # print(self.lineEditInputFile.text())
+                    filepath = self.lineEditInputFile.text()
+                    filename = os.path.basename(filepath)
+                    filename = filename.split('.')
+                    print(filename[0], filename[1])
+                    if not os.path.exists('temp'):
+                        os.makedirs('temp')
+
+                    binary_file = fr.ReadFileAsByteArray(
+                        self.lineEditInputFile.text())
+
+                    vig = Vigenere()
+                    vig.input_key(self.lineEditKey.text())
+                    vig.set_auto(False)
+                    vig.set_full(False)
+                    vig.set_extended(True)
+                    encrypted = vig.encrypt(
+                        ''.join([chr(i) for i in binary_file]))
+                    binary_file = bytes(encrypted)
+
+                    extractor = FrameExtractor(
+                        self.lineEditInputVideo.text(), "temp")
+                    extractor.load()
+                    extractor.extract()
+                    print("Extracting done")
+                    lsb = VideoLSB(self.lineEditInputVideo.text(),
+                                   binary_file, self.lineEditOutputVideo.text(), storingMode)
+                    lsb.stego_data(filename[0], filename[1], storingMode, seed)
+                    lsb.makeVideo(self.lineEditOutputVideo.text())
                     shutil.rmtree("temp")
-                # just do it
-                # print(self.lineEditInputFile.text())
-                filepath = self.lineEditInputFile.text()
-                filename = os.path.basename(filepath)
-                filename = filename.split('.')
-                print(filename[0], filename[1])
-                if not os.path.exists('temp'):
-                    os.makedirs('temp')
+                else:
+                    if os.path.exists('temp'):
+                        shutil.rmtree("temp")
+                    # just do it
+                    # print(self.lineEditInputFile.text())
+                    filepath = self.lineEditInputFile.text()
+                    filename = os.path.basename(filepath)
+                    filename = filename.split('.')
+                    print(filename[0], filename[1])
+                    if not os.path.exists('temp'):
+                        os.makedirs('temp')
 
-                binary_file = fr.ReadFileAsByteArray(
-                    self.lineEditInputFile.text())
-                extractor = FrameExtractor(
-                    self.lineEditInputVideo.text(), "temp")
-                extractor.load()
-                extractor.extract()
-                print("Extracting done")
-                lsb = VideoLSB(self.lineEditInputVideo.text(),
-                               binary_file, self.lineEditOutputVideo.text(), storingMode)
-                lsb.stego_data(filename[0], filename[1], storingMode, seed)
-                lsb.makeVideo(self.lineEditOutputVideo.text())
-                shutil.rmtree("temp")
+                    binary_file = fr.ReadFileAsByteArray(
+                        self.lineEditInputFile.text())
+                    extractor = FrameExtractor(
+                        self.lineEditInputVideo.text(), "temp")
+                    extractor.load()
+                    extractor.extract()
+                    print("Extracting done")
+                    lsb = VideoLSB(self.lineEditInputVideo.text(),
+                                   binary_file, self.lineEditOutputVideo.text(), storingMode)
+                    lsb.stego_data(filename[0], filename[1], storingMode, seed)
+                    lsb.makeVideo(self.lineEditOutputVideo.text())
+                    shutil.rmtree("temp")
 
-        else:
-            if encrypt.startswith("With (Vi"):
-                # perform encryption
-                shutil.rmtree("temp")
-                # just do it
-                # print(self.lineEditInputFile.text())
-                filepath = self.lineEditInputVideo.text()
-                filename = os.path.basename(filepath)
-                filename = filename.split('.')
-
-                print(filename[0], filename[1])
-                if not os.path.exists('temp'):
-                    os.makedirs('temp')
-                extractor = FrameExtractor(
-                    self.lineEditInputVideo.text(), "temp")
-                extractor.load()
-                extractor.extract()
-                print("Extracting done")
-                unlsb = VideoUnLSB(self.lineEditInputVideo.text())
-                framecount, mode_bit, filename, ext = unlsb.get_stego_metadata()
-                binary_string = unlsb.unstego_data(framecount, mode_bit, seed)
-                binary_string = utils.BitsToRawString(binary_string)
-
-                vig2 = Vigenere()
-                vig2.input_key(self.lineEditKey.text())
-                vig2.set_auto(False)
-                vig2.set_full(False)
-                vig2.set_extended(True)
-                decrypted = vig2.decrypt(
-                    ''.join([chr(i) for i in binary_string]))
-                binary_string = bytes(decrypted)
-                fr.SaveFileFromByteArray(
-                    binary_string, self.lineEditOutputVideo.text())
-                shutil.rmtree("temp")
             else:
-                # just do it
-                shutil.rmtree("temp")
-                # just do it
-                # print(self.lineEditInputFile.text())
-                filepath = self.lineEditInputVideo.text()
-                filename = os.path.basename(filepath)
-                filename = filename.split('.')
+                if encrypt.startswith("With (Vi"):
+                    # perform encryption
+                    shutil.rmtree("temp")
+                    # just do it
+                    # print(self.lineEditInputFile.text())
+                    filepath = self.lineEditInputVideo.text()
+                    filename = os.path.basename(filepath)
+                    filename = filename.split('.')
 
-                print(filename[0], filename[1])
-                if not os.path.exists('temp'):
-                    os.makedirs('temp')
-                extractor = FrameExtractor(
-                    self.lineEditInputVideo.text(), "temp")
-                extractor.load()
-                extractor.extract()
-                print("Extracting done")
-                unlsb = VideoUnLSB(self.lineEditInputVideo.text())
-                framecount, mode_bit, filename, ext = unlsb.get_stego_metadata()
-                binary_string = unlsb.unstego_data(framecount, mode_bit, seed)
-                binary_string = utils.BitsToRawString(binary_string)
-                fr.SaveFileFromByteArray(
-                    binary_string, self.lineEditOutputVideo.text())
-                shutil.rmtree("temp")
+                    print(filename[0], filename[1])
+                    if not os.path.exists('temp'):
+                        os.makedirs('temp')
+                    extractor = FrameExtractor(
+                        self.lineEditInputVideo.text(), "temp")
+                    extractor.load()
+                    extractor.extract()
+                    print("Extracting done")
+                    unlsb = VideoUnLSB(self.lineEditInputVideo.text())
+                    framecount, mode_bit, filename, ext = unlsb.get_stego_metadata()
+                    binary_string = unlsb.unstego_data(
+                        framecount, mode_bit, seed)
+                    binary_string = utils.BitsToRawString(binary_string)
+
+                    vig2 = Vigenere()
+                    vig2.input_key(self.lineEditKey.text())
+                    vig2.set_auto(False)
+                    vig2.set_full(False)
+                    vig2.set_extended(True)
+                    decrypted = vig2.decrypt(
+                        ''.join([chr(i) for i in binary_string]))
+                    binary_string = bytes(decrypted)
+                    fr.SaveFileFromByteArray(
+                        binary_string, self.lineEditOutputVideo.text())
+                    shutil.rmtree("temp")
+                else:
+                    # just do it
+                    shutil.rmtree("temp")
+                    # just do it
+                    # print(self.lineEditInputFile.text())
+                    filepath = self.lineEditInputVideo.text()
+                    filename = os.path.basename(filepath)
+                    filename = filename.split('.')
+
+                    print(filename[0], filename[1])
+                    if not os.path.exists('temp'):
+                        os.makedirs('temp')
+                    extractor = FrameExtractor(
+                        self.lineEditInputVideo.text(), "temp")
+                    extractor.load()
+                    extractor.extract()
+                    print("Extracting done")
+                    unlsb = VideoUnLSB(self.lineEditInputVideo.text())
+                    framecount, mode_bit, filename, ext = unlsb.get_stego_metadata()
+                    binary_string = unlsb.unstego_data(
+                        framecount, mode_bit, seed)
+                    binary_string = utils.BitsToRawString(binary_string)
+                    fr.SaveFileFromByteArray(
+                        binary_string, self.lineEditOutputVideo.text())
+                    shutil.rmtree("temp")
+        except:
+            error_dialog = QtWidgets.QMessageBox()
+            error_dialog.setIcon(QtWidgets.QMessageBox.Critical)
+            error_dialog.setText("Error!")
+            error_dialog.setWindowTitle("Something went wrong")
+            error_dialog.setInformativeText(
+                "Error happened along the way. Make sure all the setting you configured is done right. Also check your key.")
+            error_dialog.exec_()
+
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)

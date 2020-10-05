@@ -2,7 +2,7 @@ import cv2
 import math
 from Video.FrameLSB import ConstructBitsArray, FrameLSB, FrameUnLSB
 from Video.FrameExtractor import FrameExtractor
-import Video.utils
+import Video.utils as utils
 import os
 import glob
 
