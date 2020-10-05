@@ -1,5 +1,5 @@
 from PyQt5 import QtWidgets, QtCore, QtMultimedia
-from stego_wav import Ui_MainWindow  # importing our generated file
+from stego_wav_1 import Ui_MainWindow  # importing our generated file
 import sys, util
 from PyQt5.QtWidgets import QMessageBox, QFileDialog
 
@@ -30,6 +30,8 @@ class UI(QtWidgets.QMainWindow):
     self.ui.buttonGo.clicked.connect(self.go)
 
     self.set_params()
+
+    self.resize(1400, 900)
 
     self.show()
 

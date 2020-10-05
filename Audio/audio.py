@@ -4,7 +4,6 @@ from vigenere import Vigenere
 import os
 import math
 import random
-from oct2py import Oct2Py
 
 byte_depth_to_dtype = {1: np.uint8, 2: np.uint16}
 
