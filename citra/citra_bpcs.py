@@ -5,6 +5,7 @@ import cv2
 import random
 from message_bpcs import MessageBPCS, MessageExtractorBPCS
 import time
+from helper import pnsr
 '''
 Algoritma BPCS
 format pesan : teratur/acak , encrypted atau engga, treshold (di bitplane 1 r) ujung kiri atas
@@ -23,7 +24,7 @@ class CitraBPCS:
             self.channel = 3
         else:
             raise Exception('File input cannot processed.')
-        self.img_ori = np.array(img)
+        self.img_ori = np.array(img).copy()
         self.img = np.array(img)
         self.img_extension = os.path.splitext(path)[1].lower()
         self.row = self.img.shape[0]
@@ -143,6 +144,9 @@ class CitraBPCS:
             for j in range(1, 8):
                 new_bitplane[i][j] = bitplane[i][j-1] ^ bitplane[i][j]
         return bitplane
+
+    def get_pnsr(self):
+        return pnsr(self.img, self.img_ori)
 
 if __name__ == "__main__":
     s = time.time()

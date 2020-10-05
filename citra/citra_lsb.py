@@ -23,7 +23,7 @@ class CitraLSB:
         else:
             raise Exception('File input cannot processed.')
         
-        self.ori_img = np.array(img)
+        self.ori_img = np.array(img).copy()
         self.array = np.array(img)
         self.img_extension = os.path.splitext(path)[1].lower()
         self.payload = self.channel * self.array.shape[0] * self.array.shape[1]
@@ -64,7 +64,7 @@ class CitraLSB:
 
         # merge message with buffer
         self.message = buff1 + buff2 + buff3 + self.message + buff4
-
+        # print(self.message)
         input_order = []
         if (is_random):
             input_order = self.generate_random_input_order(key)
@@ -122,7 +122,7 @@ class CitraLSB:
             else:
                 for k in range(channel):
                     binary_message += format(image[i][j][k], '08b')[-1]
-
+        print(binary_message[0:100])
         buff1 = binary_message[:1]
         binary_message = binary_message[1:]
         is_encrypted = buff1[0]
@@ -134,6 +134,7 @@ class CitraLSB:
         temp = ''
         for byte in bytes_message:
             if file_extension == '':
+                # print("cekcek")
                 temp += chr(int(byte, 2))
                 if temp[-2:] == "$$":
                     file_extension = temp[:-2]
@@ -145,13 +146,14 @@ class CitraLSB:
         decoded_msg = bytes(decoded_msg)
 
         if is_encrypted == '1':
+            print("pesan di enkripsiii")
             if key == '':
                 raise Exception("Need a key")
             else :
                 decoded_msg = decrypt_vigenere(key, decoded_msg)
 
         print('='*50)
-        print(file_extension)
+        # print(file_extension)
         # print(bytes(decoded_msg))
         file = open(file_name + "."+file_extension, 'wb')
         file.write(decoded_msg)
@@ -170,21 +172,28 @@ class CitraLSB:
         random.shuffle(temp)
         return temp
 
+    def get_pnsr(self):
+        print(pnsr(self.array, self.ori_img))
+        return pnsr(self.array, self.ori_img)
+
 if __name__ == "__main__":
-    while(True):
-        print("Pilih : 1. sisipkan, 2. decode")
-        inp = int(input("masukkan pilihan"))
-        if inp == 1:
-            input_img = str(input("Masukkan path gambar : "))
-            input_msg = str(input("masukkan path pesan : "))
-            citra = CitraLSB(input_img)
-            citra.load_file_message(input_msg)
-            citra.encode_lsb(is_encrypted=True, key='sst')
-            file_name = str(input("Masukkan nama gambar hasil stego untuk disimpan :"))
-            citra.save_stego_image(file_name)
-            print("PNSR : " , pnsr(citra.array, citra.ori_img))
-        elif inp == 2 :
-            input_img = str(input("Masukkan path gambar : "))
-            file_name = str(input("Masukkan nama gambar pesan untuk disimpan :"))
-            citra = CitraLSB(input_img)
-            citra.decode_lsb(file_name, 'sst')
+    # while(True):
+    #     print("Pilih : 1. sisipkan, 2. decode")
+    #     inp = int(input("masukkan pilihan"))
+    #     if inp == 1:
+    #         input_img = str(input("Masukkan path gambar : "))
+    #         input_msg = str(input("masukkan path pesan : "))
+    #         citra = CitraLSB(input_img)
+    #         citra.load_file_message(input_msg)
+    #         citra.encode_lsb()
+    #         file_name = str(input("Masukkan nama gambar hasil stego untuk disimpan :"))
+    #         citra.save_stego_image(file_name)
+    #         print("PNSR : " , pnsr(citra.array, citra.ori_img))
+    #     elif inp == 2 :
+    #         input_img = str(input("Masukkan path gambar : "))
+    #         file_name = str(input("Masukkan nama gambar pesan untuk disimpan :"))
+    #         citra = CitraLSB(input_img)
+    #         citra.decode_lsb(file_name)
+    
+    citra = CitraLSB('hasil/stego.png')
+    citra.decode_lsb('hasil/note')

@@ -75,6 +75,7 @@ class MainWindow(QMainWindow):
                 lsb.encode_lsb(key=self.keyEncode.text(),is_random=self.randomizedEncode.isChecked(), is_encrypted=self.encryptedEncode.isChecked())
                 name = QFileDialog.getSaveFileName(self, 'Save File')
                 lsb.save_stego_image(name[0])
+                self.pnsr.setText(str(lsb.get_pnsr()))
             except Exception as e:
                 self.show_error(str(e))
                 return
@@ -94,6 +95,7 @@ class MainWindow(QMainWindow):
                 bpcs.encode_bpcs(self.msg_encode_path, self.treshold, self.randomizedEncode.isChecked(), self.keyEncode.text(),self.encryptedEncode.isChecked())
                 name = QFileDialog.getSaveFileName(self, 'Save File')
                 bpcs.save_stego_image(name[0])
+                self.pnsr.setText(str(bpcs.get_pnsr()))
             except Exception as e:
                 self.show_error(str(e))
                 return
@@ -104,25 +106,25 @@ class MainWindow(QMainWindow):
             return
 
     def decode(self):
-        try:
-            if (self.lsbDecode.isChecked()):
-                if self.img_input_decode_validation():return
-                lsb = CitraLSB(self.img_decode_path)
-                name = QFileDialog.getSaveFileName(self, 'Save File')
-                lsb.decode_lsb(name[0], self.keyDecode.text())
-                
-            elif self.bpcsDecode.isChecked():
-                if self.img_input_decode_validation():return
-                if self.validate_treshold(self.tresholdDecode.text()):return
-                bpcs = CitraBPCS(self.img_decode_path)
-                name = QFileDialog.getSaveFileName(self, 'Save File')
-                bpcs.decode_bpcs(name[0], self.treshold, self.keyDecode.text())
-                print("bpcs")
-            else:
-                self.warning_wrong_input("Pilih metode lsb/bpcs")
-        except Exception as e:
-            self.show_error(str(e), False)
-            return
+        # try:
+        if (self.lsbDecode.isChecked()):
+            if self.img_input_decode_validation():return
+            lsb = CitraLSB(self.img_decode_path)
+            name = QFileDialog.getSaveFileName(self, 'Save File')
+            lsb.decode_lsb(name[0], self.keyDecode.text())
+            
+        elif self.bpcsDecode.isChecked():
+            if self.img_input_decode_validation():return
+            if self.validate_treshold(self.tresholdDecode.text()):return
+            bpcs = CitraBPCS(self.img_decode_path)
+            name = QFileDialog.getSaveFileName(self, 'Save File')
+            bpcs.decode_bpcs(name[0], self.treshold, self.keyDecode.text())
+            print("bpcs")
+        else:
+            self.warning_wrong_input("Pilih metode lsb/bpcs")
+        # except Exception as e:
+        #     self.show_error(str(e), False)
+        #     return
 
     def validate_treshold(self, obj):
         try:
