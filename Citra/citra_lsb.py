@@ -1,10 +1,10 @@
 import os
 from PIL import Image
 import numpy as np
-from vigenere import Vigenere
+from Citra.vigenere import Vigenere
 import random
 import math
-from helper import decrypt_vigenere, encrypt_vigenere, pnsr
+from Citra.helper import decrypt_vigenere, encrypt_vigenere, pnsr
 
 class CitraLSB:
     def __init__(self, path):

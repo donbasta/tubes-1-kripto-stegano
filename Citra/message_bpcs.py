@@ -1,6 +1,6 @@
 import numpy as np
 import os
-from helper import encrypt_vigenere, decrypt_vigenere
+from Citra.helper import encrypt_vigenere, decrypt_vigenere
 import random
 
 class MessageBPCS():

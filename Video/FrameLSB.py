@@ -1,8 +1,8 @@
 import base64
 from PIL import Image
 import math
-import utils
-from utils import StringToBits, BitsToString, IntToBits, BitsToInt
+import Video.utils
+from Video.utils import StringToBits, BitsToString, IntToBits, BitsToInt
 
 
 def ConstructBitsArray(data_input: str, mode: list):

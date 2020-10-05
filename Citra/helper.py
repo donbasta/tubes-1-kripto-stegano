@@ -1,4 +1,4 @@
-from vigenere import Vigenere
+from Citra.vigenere import Vigenere
 import math
 import numpy as np
 

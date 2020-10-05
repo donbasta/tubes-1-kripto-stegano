@@ -1,6 +1,6 @@
 import wave
 import numpy as np
-from vigenere import Vigenere
+from Audio.vigenere import Vigenere
 import os
 import math
 import random

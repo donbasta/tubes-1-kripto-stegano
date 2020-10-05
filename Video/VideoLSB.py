@@ -1,8 +1,8 @@
 import cv2
 import math
-from FrameLSB import ConstructBitsArray, FrameLSB, FrameUnLSB
-from FrameExtractor import FrameExtractor
-import utils
+from Video.FrameLSB import ConstructBitsArray, FrameLSB, FrameUnLSB
+from Video.FrameExtractor import FrameExtractor
+import Video.utils
 import os
 import glob
 

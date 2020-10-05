@@ -1,15 +1,15 @@
 from PyQt5 import QtWidgets, QtCore, QtMultimedia
-from stego_wav_1 import Ui_MainWindow  # importing our generated file
-import sys#, util
+from Audio.stego_wav_1 import Ui_MainWindow  # importing our generated file
+import sys
 from PyQt5.QtWidgets import QMessageBox, QFileDialog
 
-from audio import Audio
+from Audio.audio import Audio
 
-class UI(QtWidgets.QMainWindow):
+class AudioUI(QtWidgets.QMainWindow):
 
   def __init__(self):
 
-    super(UI, self).__init__()
+    super(AudioUI, self).__init__()
     self.ui = Ui_MainWindow()
     self.ui.setupUi(self)
 
@@ -176,6 +176,6 @@ class UI(QtWidgets.QMainWindow):
 
 if __name__ == "__main__":
   app = QtWidgets.QApplication([])
-  application = UI()
+  application = AudioUI()
   
   sys.exit(app.exec())
