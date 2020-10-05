@@ -1,4 +1,4 @@
-from PyQt5 import QtWidgets
+from PyQt5 import QtWidgets, QtCore, QtMultimedia
 from stego_wav import Ui_MainWindow  # importing our generated file
 import sys
 from PyQt5.QtWidgets import QMessageBox, QFileDialog
@@ -128,6 +128,11 @@ class UI(QtWidgets.QMainWindow):
 
     if self.mode == "hide":
       self.hide()
+      sound_file = self.audioOutputPath
+      sound = QtMultimedia.QSoundEffect()
+      sound.setSource(QtCore.QUrl.fromLocalFile(sound_file))
+      sound.setVolume(10)
+      sound.play()
     else:
       self.retrieve()
 

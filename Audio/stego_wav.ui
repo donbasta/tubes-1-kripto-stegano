@@ -386,20 +386,7 @@ background-color: white;</string>
      </rect>
     </property>
     <property name="text">
-     <string>0</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>160</y>
-      <width>201</width>
-      <height>21</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Key will be ignored if without encryption</string>
+     <string/>
     </property>
    </widget>
    <widget class="QRadioButton" name="radioRandomWith">
