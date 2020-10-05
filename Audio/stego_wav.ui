@@ -51,8 +51,8 @@
      <rect>
       <x>10</x>
       <y>30</y>
-      <width>82</width>
-      <height>17</height>
+      <width>60</width>
+      <height>18</height>
      </rect>
     </property>
     <property name="text">
@@ -458,7 +458,7 @@ background-color: white;</string>
  <resources/>
  <connections/>
  <buttongroups>
-  <buttongroup name="modeButtonGroup"/>
   <buttongroup name="encryptionButtonGroup"/>
+  <buttongroup name="modeButtonGroup"/>
  </buttongroups>
 </ui>

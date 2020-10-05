@@ -1,6 +1,6 @@
 from PyQt5 import QtWidgets, QtCore, QtMultimedia
-from stego_wav import Ui_MainWindow  # importing our generated file
-import sys
+from stego_wav_1 import Ui_MainWindow  # importing our generated file
+import sys, util
 from PyQt5.QtWidgets import QMessageBox, QFileDialog
 
 from audio import Audio
@@ -31,6 +31,8 @@ class UI(QtWidgets.QMainWindow):
 
     self.set_params()
 
+    self.resize(1400, 900)
+
     self.show()
 
   def load_input_audio(self):
@@ -43,7 +45,7 @@ class UI(QtWidgets.QMainWindow):
   def load_input_file(self):
     dialog = QtWidgets.QFileDialog()
 
-    fname = dialog.getOpenFileName(None, "Window name", "", "File (*.*)")
+    fname = dialog.getOpenFileName(None, "Window name", "", "All Files (*)")
     self.fileInputPath = fname[0]
     self.ui.lineEditInputFile.setText(self.fileInputPath)
 
@@ -55,9 +57,10 @@ class UI(QtWidgets.QMainWindow):
     self.ui.lineEditOutputAudio.setText(self.audioOutputPath)
 
   def save_output_file(self):
-    options = QFileDialog.Options()
-    options |= QFileDialog.DontUseNativeDialog
-    self.fileInputPath, _ = QFileDialog.getSaveFileName(self,"Window name","","All Files (*)", options=options)
+    dialog = QtWidgets.QFileDialog()
+
+    fname = dialog.getSaveFileName(None, "Window name", "", "All Files (*)")
+    self.fileInputPath = fname[0]
     self.ui.lineEditInputFile.setText(self.fileInputPath)
 
   def io_file(self):
@@ -128,20 +131,21 @@ class UI(QtWidgets.QMainWindow):
 
     if self.mode == "hide":
       self.hide()
-      sound_file = self.audioOutputPath
-      sound = QtMultimedia.QSoundEffect()
-      sound.setSource(QtCore.QUrl.fromLocalFile(sound_file))
-      sound.setVolume(10)
-      sound.play()
     else:
       self.retrieve()
 
   def hide(self):
-    audio = Audio(self.audioInputPath)
-    audio.load_file_message(self.fileInputPath)
-    audio.lsb(is_encrypted=self.with_encryption, key=self.key, is_random=self.with_random)
-    audio.save_stego_audio(self.audioOutputPath)
-    self.inform_successful()
+    try:
+      audio = Audio(self.audioInputPath)
+      # psnr_i = audio.get_signal()
+      audio.load_file_message(self.fileInputPath)
+      audio.lsb(is_encrypted=self.with_encryption, key=self.key, is_random=self.with_random)
+      audio.save_stego_audio(self.audioOutputPath)
+      # psnr_f = Audio(self.audioOutputPath).get_signal()
+      # psnr = util.calc_psnr(psnr_i, psnr_f)
+      self.inform_successful()
+    except Exception as e:
+      self.inform_unsuccessful(str(e))
 
 
   def retrieve(self):
@@ -153,11 +157,21 @@ class UI(QtWidgets.QMainWindow):
     msg.setIcon(QMessageBox.Information)
     msg.setText("Sukses")
     msg.setInformativeText("Penyisipan berhasil dilakukan")
-    msg.setWindowTitle("-")
+    msg.setWindowTitle("Penyisipan sukses")
+    # msg.setDetailText("Nilai dari PSMR (Kualitas Audio) adalah: {}".format(psnr))
     msg.setStandardButtons(QMessageBox.Ok)
 
     retval = msg.exec_()
-    print("value of pressed message box button:", retval)
+
+  def inform_unsuccessful(self, er):
+    msg = QMessageBox()
+    msg.setIcon(QMessageBox.Warning)
+    msg.setText("Gagal")
+    msg.setInformativeText(er)
+    msg.setWindowTitle("Penyisipan gagal")
+    msg.setStandardButtons(QMessageBox.Ok)
+
+    retval = msg.exec_()
 
 
 if __name__ == "__main__":

@@ -28,7 +28,7 @@ class Ui_MainWindow(object):
         self.modeButtonGroup.setObjectName("modeButtonGroup")
         self.modeButtonGroup.addButton(self.radioModeHide)
         self.radioModeRetrieve = QtWidgets.QRadioButton(self.centralwidget)
-        self.radioModeRetrieve.setGeometry(QtCore.QRect(10, 30, 82, 17))
+        self.radioModeRetrieve.setGeometry(QtCore.QRect(10, 30, 60, 18))
         self.radioModeRetrieve.setObjectName("radioModeRetrieve")
         self.modeButtonGroup.addButton(self.radioModeRetrieve)
         self.modeLabel = QtWidgets.QLabel(self.centralwidget)
