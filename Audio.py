@@ -52,7 +52,6 @@ class Audio:
       msg_bytes = msg_file.read()
 
     self.msg_extension = os.path.splitext(path)[1].lower()[1:]
-    # print("extension: {}".format(self.msg_extension))
     if len(msg_bytes) > self.payload//8 - 1 - len(self.msg_extension) - 5:
       raise Exception('{} bytes file is too big'.format(len(msg_bytes)))
     self.message = msg_bytes
@@ -87,18 +86,16 @@ class Audio:
     if is_random:
       input_order = self.generate_random_input_order(key)
     else:
-      input_order = [i for i in range(1, self.payload)] #banyak byte di carrier
+      input_order = [i for i in range(1, self.payload)]
 
     print("input_order encoding: {}".format(input_order[:10]))
 
-    # self.array[0] = int(format(self.array[0], "08b")[:-1] + buff1[0], 2)
     self.array[0][-1] = int(buff1[0])
 
     data_index = 1
     data_len = len(self.message)
 
     for pos in input_order:
-      # self.array[pos] = int(format(self.array[pos], "08b")[:-1] + self.message[data_index], 2)
       self.array[pos][-1] = int(self.message[data_index])
       data_index += 1
       if data_index >= data_len:

@@ -73,9 +73,13 @@ class UI(QtWidgets.QMainWindow):
     if self.ui.radioModeHide.isChecked():
       self.ui.radioModeRetrieve.setChecked(False)
       self.mode = "hide"
+      
+      self.changeMode("hide")
     if self.ui.radioModeRetrieve.isChecked():
       self.ui.radioModeHide.setChecked(False)
       self.mode = "retrieve"
+      
+      self.changeMode("retrieve")
     if self.ui.radioEncryptionWithout.isChecked():
       self.ui.radioEncryptionWith.setChecked(False)
       self.with_encryption = False
@@ -91,6 +95,19 @@ class UI(QtWidgets.QMainWindow):
 
     self.print_params()
 
+  def changeMode(self, mode):
+    if mode == "hide":
+      self.ui.lineEditInputAudioLabel.setText("Input Audio File (.wav)")
+      self.ui.lineEditInputFileLabel.setText("Plaintext to hide")
+      self.ui.lineEditOutputAudioLabel.show()
+      self.ui.lineEditOutputAudio.show()
+      self.ui.buttonOutputAudio.show()
+    elif mode == "retrieve":
+      self.ui.lineEditInputAudioLabel.setText("Input StegAudio (.wav)")
+      self.ui.lineEditInputFileLabel.setText("Plaintext to show")
+      self.ui.lineEditOutputAudioLabel.hide()
+      self.ui.lineEditOutputAudio.hide()
+      self.ui.buttonOutputAudio.hide()
 
   def go(self):
 
@@ -117,6 +134,8 @@ class UI(QtWidgets.QMainWindow):
     # audio_stego_path = input("Masukkan path ke audio cover: (format .wav): ")
     # audio_stego_path = output_path_tests[0]
     # Audio = Audio(audio_stego_path)
+    audio = Audio(self.audioInputPath)
+    audio.decode_lsb(self.fileInputPath, key=self.key)
 
     # output_path = input("Masukkan file yang ingin disimpan: ")
     # output_path = de_stego_path_tests[1]
